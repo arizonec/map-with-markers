@@ -88,15 +88,14 @@ const main = async () => {
             if (e.target.classList.contains('item-button-delete')) {
                 const parent = e.target;
                 let array = JSON.parse(localStorage.getItem('array'));
+                const filteredArray = array.filter(item => item.id != parent.closest('.item').id);
+                localStorage.setItem('array', JSON.stringify(filteredArray));
+                renderList();
                 map.geoObjects.each(geoObject => {
                     if (geoObject.properties.get('iden') == parent.closest('.item').id) {
                         map.geoObjects.remove(geoObject);
                     }
                 });
-                const filteredArray = array.filter(item => item.id != parent.closest('.item').id);
-                localStorage.setItem('array', JSON.stringify(filteredArray));
-                renderList();
-                main();
                 // objectManager.remove([parent.closest('.item').id]);
             }
         }
