@@ -6,6 +6,9 @@ const inputType = document.querySelector('.input-type');
 const inputName = document.querySelector('.input-name');
 const inputAbout = document.querySelector('.input-about');
 const itemsList = document.querySelector('.items-list');
+const search = document.querySelector('.search');
+
+//Добавить 10 картинок и рандомно выбирать
 
 let map;
 const x = document.querySelector('.x');
@@ -37,6 +40,7 @@ const main = async () => {
                                     </div>`,
                 }, {
                     draggable: true,
+                    preset: 'islands#greenIcon',
                 });
 
                 map.geoObjects.add(placemark);
@@ -76,11 +80,21 @@ const main = async () => {
         }
 
         const showItemOnMap = (e) => {
-            const parent = e.target;
-            let array = JSON.parse(localStorage.getItem('array'));
-            const point = array.find(item => item.id == parent.closest('.item').id);
-            if (point) {
-                map.setCenter([point.xCoord, point.yCoord]);
+            if (!e.target.classList.contains('item-button')) {
+                const parent = e.target;
+                let array = JSON.parse(localStorage.getItem('array'));
+
+                const point = array.find(item => item.id == parent.closest('.item').id);
+                if (point) {
+                    map.setCenter([point.xCoord, point.yCoord]);
+                }
+                map.geoObjects.each(geoObject => {
+                    if (geoObject.properties.get('iden') == parent.closest('.item').id) {
+                        geoObject.options.set('preset', 'islands#pinkIcon');
+                    } else if (geoObject.properties.get('iden') != parent.closest('.item').id) {
+                        geoObject.options.set('preset', 'islands#greenIcon');
+                    }
+                });
             }
         }
 
@@ -100,23 +114,40 @@ const main = async () => {
             }
         }
 
-        const createMarker = () => {
+        const createMarker = (e) => {
             let name;
             let type;
             let about;
 
-            if (inputType.value) {
+            // if (inputType.value) {
+            //     type = inputType.value;
+            // }
+            // if (inputName.value) {
+            //     name = inputName.value;
+            // }
+            // if (inputAbout.value) {
+            //     about = inputAbout.value;
+            // }
+
+            if (inputType.value !== '' && inputName.value !== '' && inputAbout.value !== '') {
                 type = inputType.value;
-            }
-            if (inputName.value) {
                 name = inputName.value;
-            }
-            if (inputAbout.value) {
                 about = inputAbout.value;
+            } else {
+                alert('Заполните все поля!!!')
+                return;
             }
 
-            let xCoord = x.innerHTML;
-            let yCoord = y.innerHTML;
+            let xCoord;
+            let yCoord;
+
+            if (x.innerHTML.length > 5 && y.innerHTML.length > 5) {
+                xCoord = x.innerHTML;
+                yCoord = y.innerHTML;
+            } else {
+                alert('Выбирите точку на карте!!!')
+                return;
+            }
 
             const id = Date.now();
 
@@ -141,11 +172,22 @@ const main = async () => {
                 iden: obj.id,
             }, {
                 draggable: true,
+                preset: 'islands#greenIcon',
             });
 
             map.geoObjects.add(placemark);
 
             renderList();
+        }
+
+        const searchArray = () => {
+            const localStorageData = JSON.parse(localStorage.getItem('array'));
+            const filteredData = localStorageData.filter(item => item.name.toLowerCase().slice(0, search.value.length) === search.value.toLowerCase());
+
+            itemsList.innerHTML = '';
+            filteredData.forEach(item => {
+                itemsList.innerHTML += renderItem(item);
+            });
         }
 
         // map.geoObjects.add(objectManager);
@@ -154,6 +196,7 @@ const main = async () => {
         itemsList.addEventListener('click', deleteItem);
         itemsList.addEventListener('click', showItemOnMap);
         button.addEventListener('click', createMarker);
+        search.addEventListener('keyup', searchArray);
     });
 }
 
@@ -186,7 +229,52 @@ const renderItem = (obj) => {
     `
 }
 
+const editItem = (e) => {
+    const elem = e.target;
+    if (e.target.classList.contains('item-button')) {
+        const parent = elem.closest('.item');
+        const itemNameInput = document.createElement('input');
+        itemNameInput.classList.add('item-name-edit');
+        itemNameInput.value = parent.querySelector('.item-name').innerHTML;
+        parent.querySelector('.item-name').innerHTML = '';
+        parent.querySelector('.item-name').appendChild(itemNameInput);
 
+        const itemTypeInput = document.createElement('input');
+        itemTypeInput.classList.add('item-type-edit');
+        itemTypeInput.value = parent.querySelector('.item-type').innerHTML;
+        parent.querySelector('.item-type').innerHTML = '';
+        parent.querySelector('.item-type').appendChild(itemTypeInput);
 
+        const itemAboutInput = document.createElement('input');
+        itemAboutInput.classList.add('item-about-edit');
+        itemAboutInput.value = parent.querySelector('.item-about').innerHTML;
+        parent.querySelector('.item-about').innerHTML = '';
+        parent.querySelector('.item-about').appendChild(itemAboutInput);
+
+        const saveButton = document.createElement('button');
+        saveButton.classList.add('saved');
+        saveButton.textContent = 'Save';
+        parent.querySelector('.buttons').innerHTML = '';
+        parent.querySelector('.buttons').appendChild(saveButton);
+
+        const localStorageData = JSON.parse(localStorage.getItem('array'));
+        const obj = localStorageData.find(item => item.id == parent.id);
+
+        saveButton.addEventListener('click', () => {
+            obj.name = itemNameInput.value;
+            obj.type = itemTypeInput.value;
+            obj.about = itemAboutInput.value;
+            localStorage.setItem('array', JSON.stringify(localStorageData));
+            renderList();
+        });
+    }
+}
+
+itemsList.addEventListener('click', editItem);
 document.addEventListener('DOMContentLoaded', renderList);
 main();
+
+
+
+
+
