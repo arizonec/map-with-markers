@@ -21,8 +21,6 @@ const main = async () => {
             controls: ['typeSelector'],
         });
 
-        // let objectManager = new ymaps.ObjectManager({ clusterize: false });
-
         let array = JSON.parse(localStorage.getItem('array'));
 
         if (array) {
@@ -109,7 +107,7 @@ const main = async () => {
                         map.geoObjects.remove(geoObject);
                     }
                 });
-                // objectManager.remove([parent.closest('.item').id]);
+
             }
         }
 
@@ -119,15 +117,6 @@ const main = async () => {
             let about;
             let color;
 
-            // if (inputType.value) {
-            //     type = inputType.value;
-            // }
-            // if (inputName.value) {
-            //     name = inputName.value;
-            // }
-            // if (inputAbout.value) {
-            //     about = inputAbout.value;
-            // }
 
             if (inputType.value !== '' && inputName.value !== '' && inputAbout.value !== '') {
                 type = inputType.value;
@@ -193,6 +182,7 @@ const main = async () => {
             });
         }
 
+        //Тут должен быть фильтр маркеров, был близок, но не вышло:(
         // const searchArray = () => {
         //     const localStorageData = JSON.parse(localStorage.getItem('array'));
         //     const searchValue = search && search.value ? search.value.toLowerCase() : '';
