@@ -146,7 +146,7 @@ const main = async () => {
                 xCoord = x.innerHTML;
                 yCoord = y.innerHTML;
             } else {
-                alert('Выбирите точку на карте!!!')
+                alert('Выберите точку на карте!!!')
                 return;
             }
 
