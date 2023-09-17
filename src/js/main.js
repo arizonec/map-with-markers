@@ -1,14 +1,13 @@
 import '../index.html';
-import '../assets/styles/style.scss';
+import '../assets/styles/style.css';
 
 const button = document.querySelector('.input-bnt');
 const inputType = document.querySelector('.input-type');
 const inputName = document.querySelector('.input-name');
+const inputColor = document.querySelector('.input-color');
 const inputAbout = document.querySelector('.input-about');
 const itemsList = document.querySelector('.items-list');
 const search = document.querySelector('.search');
-
-//Добавить 10 картинок и рандомно выбирать
 
 let map;
 const x = document.querySelector('.x');
@@ -28,7 +27,7 @@ const main = async () => {
 
         if (array) {
             array.forEach(obj => {
-                let placemark = new ymaps.Placemark([obj.xCoord, obj.yCoord], {
+                let placemark = new ymaps.Placemark([obj.xCoord, obj.yCoord, obj.color], {
                     iden: obj.id,
                     hintContent: `<div class="item-hint" id="${obj.id}">
                                         <img src="${require(`../assets/images/norway.png`)}" alt="">
@@ -40,7 +39,7 @@ const main = async () => {
                                     </div>`,
                 }, {
                     draggable: true,
-                    preset: 'islands#greenIcon',
+                    preset: `islands#${obj.color}Icon`,
                 });
 
                 map.geoObjects.add(placemark);
@@ -90,9 +89,9 @@ const main = async () => {
                 }
                 map.geoObjects.each(geoObject => {
                     if (geoObject.properties.get('iden') == parent.closest('.item').id) {
-                        geoObject.options.set('preset', 'islands#pinkIcon');
+                        geoObject.options.set('preset', `islands#${point.color}Icon`);
                     } else if (geoObject.properties.get('iden') != parent.closest('.item').id) {
-                        geoObject.options.set('preset', 'islands#greenIcon');
+                        geoObject.options.set('preset', 'islands#grayIcon');
                     }
                 });
             }
@@ -118,6 +117,7 @@ const main = async () => {
             let name;
             let type;
             let about;
+            let color;
 
             // if (inputType.value) {
             //     type = inputType.value;
@@ -133,6 +133,7 @@ const main = async () => {
                 type = inputType.value;
                 name = inputName.value;
                 about = inputAbout.value;
+                color = inputColor.value.length > 0 ? inputColor.value : 'green';
             } else {
                 alert('Заполните все поля!!!')
                 return;
@@ -156,6 +157,7 @@ const main = async () => {
                 name,
                 type,
                 about,
+                color,
                 xCoord,
                 yCoord,
             }
@@ -168,11 +170,12 @@ const main = async () => {
                 localStorage.setItem('array', JSON.stringify([]));
             }
 
-            let placemark = new ymaps.Placemark([obj.xCoord, obj.yCoord], {
+            let placemark = new ymaps.Placemark([obj.xCoord, obj.yCoord, obj.color], {
                 iden: obj.id,
             }, {
                 draggable: true,
-                preset: 'islands#greenIcon',
+                // preset: 'islands#greenIcon',
+                preset: `islands#${color}Icon`,
             });
 
             map.geoObjects.add(placemark);
@@ -189,6 +192,29 @@ const main = async () => {
                 itemsList.innerHTML += renderItem(item);
             });
         }
+
+        // const searchArray = () => {
+        //     const localStorageData = JSON.parse(localStorage.getItem('array'));
+        //     const searchValue = search && search.value ? search.value.toLowerCase() : '';
+        //     const filteredData = localStorageData.filter(item => item.name.toLowerCase().slice(0, search.value.length) === search.value.toLowerCase());
+
+        //     map.geoObjects.each((geoObject) => {
+        //         const geoObjectName = geoObject.properties.get('name');
+        //         const found = geoObjectName && geoObjectName.toLowerCase() === searchValue;
+        //         if (found) {
+        //             geoObject.options.set('visible', true);  // Show marker
+        //         } else {
+        //             geoObject.options.set('visible', false);  // Hide marker
+        //         }
+        //     });
+
+        //     itemsList.innerHTML = '';
+        //     filteredData.forEach(item => {
+        //         itemsList.innerHTML += renderItem(item);
+        //     });
+        // };
+
+
 
         // map.geoObjects.add(objectManager);
         map.events.add('click', getGeo);
